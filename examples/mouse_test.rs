@@ -28,6 +28,7 @@ fn main() {
         *control_flow = ControlFlow::Poll;
 
         match event {
+            Event::NewEvents(_) => if start.is_some() { println!("[NewEvents]") },
             Event::MainEventsCleared => {
                 if let Some(start) = &start {
                     println!("[MainEventCleared] @ {:.3} us", start.elapsed().as_nanos() as f32 / 1000.0 );
