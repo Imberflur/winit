@@ -1055,9 +1055,16 @@ impl<T: 'static> EventProcessor<T> {
                             }
                         }
                         if mouse_delta != (0.0, 0.0) {
+                            println!(
+                                "Generating mouse event: ({:.3}, {:.3})",
+                                mouse_delta.0, mouse_delta.1
+                            );
                             callback(Event::DeviceEvent {
                                 device_id: did,
-                                event: DeviceEvent::MouseMotion { delta: mouse_delta },
+                                event: DeviceEvent::MouseMotion {
+                                    delta: mouse_delta,
+                                    recv: std::time::Instant::now(),
+                                },
                             });
                         }
                         if scroll_delta != (0.0, 0.0) {

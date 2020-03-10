@@ -89,10 +89,12 @@ unsafe fn maybe_dispatch_device_event(this: &Object, event: id) {
             }
 
             if delta_x != 0.0 || delta_y != 0.0 {
+                println!("Generating mouse event: ({:.3}, {:.3})", delta_x, delta_y);
                 events.push_back(EventWrapper::StaticEvent(Event::DeviceEvent {
                     device_id: DEVICE_ID,
                     event: DeviceEvent::MouseMotion {
                         delta: (delta_x, delta_y),
+                        recv: std::time::Instant::now(),
                     },
                 }));
             }

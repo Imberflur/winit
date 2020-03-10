@@ -450,6 +450,7 @@ pub enum DeviceEvent {
         ///
         /// Different devices may use different units.
         delta: (f64, f64),
+        recv: std::time::Instant,
     },
 
     /// Physical scroll event
