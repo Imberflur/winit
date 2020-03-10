@@ -24,12 +24,18 @@ fn main() {
 
     let mut start: Option<Instant> = None;
 
+    let mut polled_twice = false;
+
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Poll;
 
         match event {
             Event::NewEvents(_) => if start.is_some() { println!("[NewEvents]") },
             Event::MainEventsCleared => {
+                if !polled_twice {
+                    polled_twice = true;
+                    return;
+                }
                 if let Some(start) = &start {
                     println!("[MainEventCleared] @ {:.3} us", start.elapsed().as_nanos() as f32 / 1000.0 );
                     draw(pos, pixels.get_frame());
@@ -41,7 +47,8 @@ fn main() {
                 }
 
                 // Sleep
-                std::thread::sleep(std::time::Duration::from_millis((1000.0/60.0) as u64))
+                std::thread::sleep(std::time::Duration::from_millis((1000.0/60.0) as u64));
+                polled_twice = false;
             },
             Event::DeviceEvent {
                 event: DeviceEvent::MouseMotion{ delta: (x, y), recv},
