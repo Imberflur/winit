@@ -23,23 +23,31 @@ fn main() {
     let mut pos = 0.0;
 
     let mut start: Option<Instant> = None;
+    let mut last_cleared = Instant::now();
 
-    let mut polled_twice = false;
+    let mut poll_count = 0;
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Poll;
 
         match event {
-            Event::NewEvents(_) => if start.is_some() { println!("[NewEvents]") },
             Event::MainEventsCleared => {
-                if !polled_twice {
-                    polled_twice = true;
+                if let Some(start) = &start {
+                    println!("[MainEventsCleared] @ {:.3} us", start.elapsed().as_nanos() as f32 / 1000.0 );
+                    println!("{:.3} ms since last MainEventsCleared", last_cleared.elapsed().as_nanos() as f32 / 1_000_000.0);
+                    last_cleared = Instant::now();
+                }
+
+                if poll_count < 3 {
+                    poll_count += 1;
                     return;
                 }
-                if let Some(start) = &start {
-                    println!("[MainEventCleared] @ {:.3} us", start.elapsed().as_nanos() as f32 / 1000.0 );
-                    draw(pos, pixels.get_frame());
+                
+                if start.is_some() {
+                    println!("Rendering");
                 }
+
+                draw(pos, pixels.get_frame());
                 pixels.render();
 
                 if pos >= 600.0 {
@@ -48,7 +56,7 @@ fn main() {
 
                 // Sleep
                 std::thread::sleep(std::time::Duration::from_millis((1000.0/60.0) as u64));
-                polled_twice = false;
+                poll_count = 0;
             },
             Event::DeviceEvent {
                 event: DeviceEvent::MouseMotion{ delta: (x, y), recv},
@@ -56,6 +64,7 @@ fn main() {
             } => {
                 if start.is_none() {
                     start = Some(Instant::now());
+                    last_cleared = Instant::now();
                 }
                 println!(
                     "[DeviceEvent::MouseMotion({:.3}, {:.3})] @ {:.3} us, {:.3} us after winit created",
