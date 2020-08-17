@@ -178,7 +178,7 @@ impl WindowFlags {
     fn mask(mut self) -> WindowFlags {
         if self.contains(WindowFlags::MARKER_FULLSCREEN) {
             self &= WindowFlags::FULLSCREEN_AND_MASK;
-            self |= WindowFlags::FULLSCREEN_OR_MASK;
+            // self |= WindowFlags::FULLSCREEN_OR_MASK;
         }
         if !self.contains(WindowFlags::VISIBLE) {
             self &= WindowFlags::INVISIBLE_AND_MASK;
