@@ -15,17 +15,33 @@ fn main() {
         .build(&event_loop)
         .unwrap();
 
+    let mut poll_count = 0;
     event_loop.run(move |event, _, control_flow| {
-        *control_flow = ControlFlow::Wait;
-        println!("{:?}", event);
+        *control_flow = ControlFlow::Poll;
+        //println!("{:?}", event);
 
         match event {
             Event::WindowEvent {
                 event: WindowEvent::CloseRequested,
                 window_id,
             } if window_id == window.id() => *control_flow = ControlFlow::Exit,
+            Event::WindowEvent {
+                event: WindowEvent::KeyboardInput { input, .. },
+                ..
+            } => {
+                println!("{:3} win {:?}", poll_count, input);
+            }
+            Event::DeviceEvent {
+                event: winit::event::DeviceEvent::Key(input),
+                ..
+            } => {
+                println!("{:3} dev: {:?}", poll_count, input);
+            }
             Event::MainEventsCleared => {
+                poll_count = (poll_count + 1) % 1000;
                 window.request_redraw();
+                // 5 polls per sec
+                std::thread::sleep(std::time::Duration::from_millis(200));
             }
             _ => (),
         }
