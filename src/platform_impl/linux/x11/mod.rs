@@ -408,7 +408,9 @@ impl<T: 'static> EventLoop<T> {
 
         let wt = get_xtarget(&self.target);
 
-        while unsafe { self.event_processor.poll_one_event(xev.as_mut_ptr()) } {
+        while unsafe {
+            self.event_processor.poll() && self.event_processor.poll_one_event(xev.as_mut_ptr())
+        } {
             let mut xev = unsafe { xev.assume_init() };
             self.event_processor.process_event(&mut xev, |event| {
                 sticky_exit_callback(
